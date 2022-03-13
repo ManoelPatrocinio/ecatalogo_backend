@@ -8,8 +8,8 @@ const adminController  = new AdminController()
 
 routes.get("/", async (req, res) => {
   try {
-    const products = await Products.find({"status": true});
-    res.json({ error: false, products });
+    const products = await Products.find();
+    res.json(products);
   } catch (e) {
     res.status(400).json({ error: true, message: e });
   }

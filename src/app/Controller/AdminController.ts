@@ -23,7 +23,7 @@ class AdminController {
 
   async show(request: Request, response: Response) {
     try {
-      const products = await Products.find({"status":true});
+      const products = await Products.find();
       response.status(201).json(products);
     } catch (e) {
       response.status(404).json(`Error on return  products list `);
@@ -59,7 +59,7 @@ class AdminController {
     if(produtAlreadyExists){
 
       try {
-         await Products.remove({"_id":id });
+         await Products.deleteOne({"_id":id });
         response.status(201).json("Product deleted");
       } catch (e) {
         response.status(406).json("Erro on remove product data");
