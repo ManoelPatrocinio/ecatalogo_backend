@@ -1,8 +1,68 @@
 import { Request, Response } from "express";
 import { Products } from "../model/product";
+import { User } from "../model/user";
+import * as bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
+import "dotenv/config";
+
+const secret: (string | any )= process.env.yourSecret
 
 class AdminController {
+
+
+
+  async register(request: Request, response: Response) {
+      const {email} =  request.body;
+
+      try {
+        //verificr se o usuário esta casdastrado  
+        if(await User.findOne({email}))  
+          return response.status(406).json({  message: 'Usuário já cadastrado' });
+        
+        const user = await User.create(request.body);
+        return response.status(201).send({user})
+      } catch (e) {
+        console.log(e)
+        response.status(404).json(`Error on create user `);
+      }
+  };
+
   
+  async login(request: Request, response: Response) {
+    try {
+      const {email,password} =  request.body;
+
+      //busca no bd e verifica se o user exist
+      const user = await User.findOne({email}).select('+password')
+  
+      if(!user){
+        return response.json({ error: true, message: 'Usuário não cadastrado'  }).status(400);
+        // res.status(400).send({ error: true, message: 'Usuário não cadastrado' });
+    
+      }
+      
+  
+      //compara a senha informado com a registado no bd
+      if(!await bcrypt.compare(password.toString (), user.password)){
+        return response.json({ error: true, message: 'Senha inválida'  }).status(400);
+  
+      }    
+  
+      // user.cpf = undefined  
+  
+      // criar um token para o user, que inspira em 1 dia
+      const token = jwt.sign({password: user.password},secret ,{
+          expiresIn:86400
+      })
+  
+      //se tudo ok
+      response.status(200).send({
+          user
+      })  
+    } catch (e) {
+      response.status(404).json(`Error on return user `);
+    }
+  }
   async create(request: Request, response: Response) {
     const  product  =  request.body
     const produtAlreadyExists = await Products.findOne({ "title": product.title });

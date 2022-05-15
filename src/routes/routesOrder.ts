@@ -16,6 +16,8 @@ routes.get("/", async (req, res) => {
 });
 
 routes.get("/admin", adminController.show);
+routes.post("/login", adminController.login);
+routes.post("/register", adminController.register);
 routes.post("/admin/create", adminController.create);
 routes.put("/admin/update/:id", adminController.update );
 routes.delete("/admin/delete/:id", adminController.delete );
